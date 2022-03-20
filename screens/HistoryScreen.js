@@ -1,10 +1,6 @@
-import React, { useEffect, useLayoutEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SectionList, StyleSheet, Text, View, Image, Alert, Modal, Pressable} from 'react-native';
-
-import { auth, db } from '../firebase';
-import { AntDesign } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Avatar } from 'react-native-elements/dist/avatar/Avatar';
+import { db } from '../firebase';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { FlatList } from 'react-native';
 import { SearchBar } from 'react-native-elements';
@@ -173,29 +169,6 @@ const HistoryScreen = ({ navigation }) => {
             setSearch(text);
         }
     };
-
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity style={{
-                    marginRight: 30
-                }}
-                    onPress={signOut}
-                >
-                    <AntDesign name="logout" size={24}
-                        color="black" />
-                </TouchableOpacity>
-            )
-        })
-
-    }, [])
-    const signOut = () => {
-        auth.signOut().then(() => {
-            navigation.replace('Login')
-        }).catch((error) => {
-            // An error happened.
-        });
-    }
 
     const onPressChat = (chatname) => {
         chatName = chatname

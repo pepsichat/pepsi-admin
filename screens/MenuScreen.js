@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { View, StyleSheet, Image, Button } from 'react-native'
-import { Input } from 'react-native-elements';
-//import { auth } from '../firebase';
-
-import Icon from "react-native-vector-icons/Ionicons";
 
 const MenuScreen = ({ navigation }) => {
 
