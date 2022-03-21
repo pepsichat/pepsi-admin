@@ -23,13 +23,17 @@ const ChatScreen = ({ navigation }) => {
     const [masterDataSource, setMasterDataSource] = useState([]);
 
     const getUser = async () => {
+        setFilteredDataSource("")
+        setMasterDataSource("")
         try {
             const response = await fetch('https://school.treesbot.com/pepsichat/select_user_and_log.php')
             const json = await response.json()
             setFilteredDataSource(json);
             setMasterDataSource(json);
+            console.log("fofonn getUser2")
             onPressTitle(json[0].shopname, json[0].shopcode, json[0].chatname, json[0].menu)
         } catch (error) {
+            console.log("fofonn getUser3")
             console.error(error)
         }
     }
@@ -71,6 +75,7 @@ const ChatScreen = ({ navigation }) => {
             })
             const json = await response.json()
             if (json[0].Message == 'Complete') {
+                console.log("fofonn Complete")
                 getUser()
             }
             // alert(json[0].Message)
@@ -172,6 +177,7 @@ const ChatScreen = ({ navigation }) => {
 
         if (res) {
             // show your message success
+            console.log("fofonn submit")
             updateChat(getchatText)
         }
     }
@@ -231,11 +237,14 @@ const ChatScreen = ({ navigation }) => {
         setShopCodeText(shopCode);
         setShopNameText(shopname);
         setMenuText(menuChat);
+        console.log("fofonn onPressTitle")
 
         readUser(shopcode, chatName)
     };
 
     const readUser = async (getshopcode, getchatName) => {
+        console.log("fofonn readUser")
+
    //   const cityRef = db.collection(getchatName).doc('pvTqBlnbd9ESJB6sx0w9');
      //   const res = await cityRef.update({ received: true });
 
