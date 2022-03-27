@@ -20,7 +20,7 @@ const MenuScreen = ({ navigation }) => {
 
                 <Button title="Live Chat" style={style.button}
                     color={"#EE0000"}
-                    onPress={() => navigation.navigate('Group')}
+                    onPress={() => navigation.navigate('Chat')}
                 />
 
                 &nbsp; &nbsp; &nbsp; &nbsp;

@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { SectionList, StyleSheet, Text, View, Image, Button } from 'react-native';
+import { SafeAreaView, ScrollView, SectionList, StyleSheet, Text, View, Image, Button } from 'react-native';
 import { db, storage } from '../firebase';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
 import { SearchBar } from 'react-native-elements';
 import { Video, Audio } from 'expo-av';
 
 const ChatScreen = ({ navigation }) => {
+    const unsubFromMessagesRef = React.useRef();
+
     const [messages, setMessages] = useState([]);
     const [titleText, setTitleText] = useState("");
     const [shopCodeText, setShopCodeText] = useState("");
@@ -30,10 +32,8 @@ const ChatScreen = ({ navigation }) => {
             const json = await response.json()
             setFilteredDataSource(json);
             setMasterDataSource(json);
-            console.log("fofonn getUser2")
             onPressTitle(json[0].shopname, json[0].shopcode, json[0].chatname, json[0].menu)
         } catch (error) {
-            console.log("fofonn getUser3")
             console.error(error)
         }
     }
@@ -75,7 +75,6 @@ const ChatScreen = ({ navigation }) => {
             })
             const json = await response.json()
             if (json[0].Message == 'Complete') {
-                console.log("fofonn Complete")
                 getUser()
             }
             // alert(json[0].Message)
@@ -110,7 +109,7 @@ const ChatScreen = ({ navigation }) => {
     }
 
     useEffect(() => {
-       // selectChatLog()
+        // selectChatLog()
         const countTimer = setInterval(() => {
             manageTimer();
         }, 1000);
@@ -123,7 +122,7 @@ const ChatScreen = ({ navigation }) => {
     const manageTimer = async () => {
 
         if (count == 0) {
-           
+
         } else if (count == 1) {
             selectChatLog()
         } else {
@@ -144,7 +143,7 @@ const ChatScreen = ({ navigation }) => {
         }
     }
 
-    const selectChatLogL = async () => {        
+    const selectChatLogL = async () => {
         var Data = {
             shopcode: shopCodeText,
             chatname: chatText,
@@ -177,7 +176,6 @@ const ChatScreen = ({ navigation }) => {
 
         if (res) {
             // show your message success
-            console.log("fofonn submit")
             updateChat(getchatText)
         }
     }
@@ -187,7 +185,7 @@ const ChatScreen = ({ navigation }) => {
         //alert("chatName" + chatName + '  shopCode ' + shopCode + ' menu ' + menuChat)
         //  alert("chatText " + chatText)
         insertChatLog(getchatText, getmenuChat)
-     //   setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+        //   setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
         const {
             _id,
             createdAt,
@@ -200,7 +198,7 @@ const ChatScreen = ({ navigation }) => {
             createdAt,
             text,
             user,
-            received: false            
+            received: false
         })
 
     }, [])
@@ -237,18 +235,11 @@ const ChatScreen = ({ navigation }) => {
         setShopCodeText(shopCode);
         setShopNameText(shopname);
         setMenuText(menuChat);
-        console.log("fofonn onPressTitle")
-
+        unsubFromMessagesRef.current && unsubFromMessagesRef.current();
         readUser(shopcode, chatName)
     };
 
     const readUser = async (getshopcode, getchatName) => {
-        console.log("fofonn readUser")
-
-   //   const cityRef = db.collection(getchatName).doc('pvTqBlnbd9ESJB6sx0w9');
-     //   const res = await cityRef.update({ received: true });
-
-       // const cityRef = db.collection(getchatName).where("received", "==", false)
         const cityRef = db.collection(getchatName).where("user._id", "==", getshopcode)
             .get()
             .then(function (querySnapshot) {
@@ -257,19 +248,21 @@ const ChatScreen = ({ navigation }) => {
                 });
             })
 
-        const unsubscribe = db.collection(getchatName).orderBy('createdAt', 'desc').onSnapshot(snapshot => setMessages(
-        snapshot.docs.map(doc => ({
-                _id: doc.data()._id,
-                createdAt: doc.data().createdAt.toDate(),
-                text: doc.data().text,
-                user: doc.data().user,
-                image: doc.data().image,
-                video: doc.data().video,
-                received: doc.data().received
-            }))
-        ))
-        return () => unsubscribe;
-    
+        const unsubFromMessages = db.collection(getchatName).orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+            unsubFromMessagesRef.current = unsubFromMessages;
+            setMessages(
+                snapshot.docs.map(doc => ({
+                    _id: doc.data()._id,
+                    createdAt: doc.data().createdAt.toDate(),
+                    text: doc.data().text,
+                    user: doc.data().user,
+                    image: doc.data().image,
+                    video: doc.data().video,
+                    received: doc.data().received
+                }))
+            )
+        });
+
     }
 
     const FlatListItemSeparator = () => {
@@ -332,14 +325,14 @@ const ChatScreen = ({ navigation }) => {
                         });
                 }
             );
-          //  uploadImagePicked()
+            //  uploadImagePicked()
         });
 
-/*
-        Promise.all(promises)
-            .then(() => )
-            .catch((err) => console.log(err));
-          */  
+        /*
+                Promise.all(promises)
+                    .then(() => )
+                    .catch((err) => console.log(err));
+                  */
     };
 
     const uploadImagePicked = (geturls) => {
@@ -547,44 +540,44 @@ const ChatScreen = ({ navigation }) => {
                     placeholder="ค้นหาจากรหัสร้านค้า..."
                     value={search}
                 />
+                        <SectionList
+                            style={{ height: 100 }}
+                            ItemSeparatorComponent={FlatListItemSeparator}
+                            sections={[
+                                { data: filteredDataSource },
+                            ]}
+                            renderItem={({ item }) => (
+                                // Single Comes here which will be repeatative for the FlatListItems
+                                <View style={{ flex: 1, flexDirection: 'row', marginLeft: 20 }}>
+                                    <Image
+                                        source={{ uri: item.displayimage }}
+                                        style={styles.Img}
+                                    />
+                                    <Text
+                                        style={styles.sectionListItemStyle}
+                                        //Item Separator View
+                                        onPress={() => updateChatLog(item.shopname, item.shopcode, item.chatname, item.menu)}>
 
-                <SectionList
-                    ItemSeparatorComponent={FlatListItemSeparator}
-                    sections={[
-                        { data: filteredDataSource },
-                    ]}
-                    renderItem={({ item }) => (
-                        // Single Comes here which will be repeatative for the FlatListItems
-                        <View style={{ flex: 1, flexDirection: 'row', marginLeft: 20 }}>
-                            <Image
-                                source={{ uri: item.displayimage }}
-                                style={styles.Img}
-                            />
-                            <Text
-                                style={styles.sectionListItemStyle}
-                                //Item Separator View
-                                onPress={() => updateChatLog(item.shopname, item.shopcode, item.chatname, item.menu)}>
-
-                                {item.shopcode} ({item.shopname})
-                            </Text>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    backgroundColor: item.chatcolor,
-                                    fontSize: 10,
-                                    padding: 5,
-                                    marginTop: 5,
-                                    color: '#fff',
-                                    height: 20,
-                                    width: 20,
-                                    borderRadius: 10
-                                }}>
-                                {item.chatcount}
-                            </Text>
-                        </View>
-                    )}
-                    keyExtractor={(item, index) => index}
-                />
+                                        {item.shopcode} ({item.shopname})
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            textAlign: 'center',
+                                            backgroundColor: item.chatcolor,
+                                            fontSize: 10,
+                                            padding: 5,
+                                            marginTop: 5,
+                                            color: '#fff',
+                                            height: 20,
+                                            width: 20,
+                                            borderRadius: 10
+                                        }}>
+                                        {item.chatcount}
+                                    </Text>
+                                </View>
+                            )}
+                            keyExtractor={(item, index) => index}
+                        />
             </View>
             <View style={{ flex: 2, backgroundColor: "lightgray" }} >
                 <View
@@ -633,14 +626,14 @@ const ChatScreen = ({ navigation }) => {
                         <div>
                             <button onClick={handleUpload}>ส่งรูป</button>
                         </div>
-                       
+
                     </View>
                     <View style={{ backgroundColor: "lightgray", flex: 2 }}>
-                        <div> 
+                        <div>
                             <input type="file" id="upload-file-video" hidden onChange={handleChangevdo} accept="video/*" />
                             <label for="upload-file-video">เลือกวิดีโอ</label>
-                            </div>
-                       
+                        </div>
+
                     </View>
                     <View style={{ backgroundColor: "lightgray", flex: 0.5 }}>
                         <div>
@@ -648,7 +641,7 @@ const ChatScreen = ({ navigation }) => {
                         </div>
                     </View>
                 </View>
-                                
+
             </View>
         </View >
     )
@@ -669,6 +662,7 @@ const styles = StyleSheet.create({
         height: 40
     },
     container: {
+
         flex: 1,
         justifyContent: 'center',
         backgroundColor: 'white',
@@ -711,5 +705,8 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 10
     },
-
+    scroll: {
+        flex: 1,
+        marginHorizontal: 16
+    },
 });
