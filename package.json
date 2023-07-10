@@ -1,12 +1,12 @@
 {
   "homepage": "http://pepsichat.github.io/chat",
-  "name": "giftedchatadmin",
-  "version": "1.0.0",
+  "name": "chat",
+  "version": "1.0.1",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "deploy": "gh-pages -d web-build",
-    "predeploy": "expo build:web",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
